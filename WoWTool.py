@@ -12,7 +12,7 @@ from datetime import datetime
 
 wow_path = ''
 targetInterface_list = list()
-
+scraper = cfscrape.create_scraper() 
 
 def log(res):
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S') +': ' + res)
@@ -21,6 +21,7 @@ class WoWConfig:
     wow_path=''
     target_list=list()
     saved_list=list()
+    download_list=list()
 
     def __init__(self):
         self.wow_path=''
@@ -41,7 +42,7 @@ class WoWConfig:
                 else:
                     self.wow_path = l.strip()
 
-            log(self.wow_path)
+            #log(self.wow_path)
         except expression as identifier:
             log('config load failed!!')
 
@@ -51,21 +52,18 @@ class WoWConfig:
             configpath = 'savedInfo.dat'
             with open(configpath, 'r') as f:
                 configdata = f.read()
-            jsondata = json.loads(configdata)
-            print(jsondata[0])
+            self.saved_list = json.loads(configdata)
+            #print(self.saved_list)
 
-                # for s in jsondata:
-                #     log(s)
-
-        except expression as identifier:
+        except:
             log('config saved load failed!!')
 
     def getaddon(self, doc):
         id = doc('.overflow-tip.truncate').eq(0).attr('data-id')
-        log(id)
+        #log(id)
 
         name = doc('.font-bold.text-lg.break-all').text()
-        log(name)
+        #log(name)
 
         ex_url = 'https://www.curseforge.com'
         originurl = ''
@@ -78,55 +76,110 @@ class WoWConfig:
                 originurl = doc('.button.button--icon-only.button--sidebar').eq(0).attr('href')
         
         version = originurl[originurl.rindex('/') + 1:]
-        log(version)
+        #log(version)
 
-        url = ex_url + originurl + "/file";	
-        log(url)
+        downloadurl = ex_url + originurl + "/file";	
+        #log(url)
         addon = dict()
         addon['id'] = id
         addon['name'] = name
-        addon['version'] = version 
+        addon['version'] = version
+        addon['downloadurl'] = downloadurl 
         return addon
+    
+    def checkNeedUpdate(self, addonobject):
+        res = True
+        for a in self.saved_list:
+            #log(str(a))
+            if a['id'] == addonobject['id'] and a['version'] == addonobject['version']:
+                res = False
+                break
+            else:
+                res = True
+        # log(addonobject['name'] + ' need update')
+        if res:
+            log(addonobject['name'] + ' need update')
+        else:
+            log(addonobject['name'] + ' not need to update')
+        return res
 
     def preparedownloadinterface(self):
-        # scraper = cfscrape.create_scraper() 
-        addonlist = list()
+        self.download_list = list()
         for t in self.target_list:
             filename = t[t.rindex('/')+1:]
-            # log('save file -- '+filename)
+            log('check interface: ' + filename)
+
+            #先写文件，从文件读取，便于测试
             # web_data = scraper.get(t).content
-            #source = str(web_data, encoding='utf-8')
             # with open(filename+'.html','wb') as demofile:
             #     demofile.write(web_data)
-            #     log(filename +'.html create')
-            log('read file --'+ filename)
-            # doc = pq(source)
-            doc = pq(filename=filename+'.html')
+            #doc = pq(filename=filename+'.html')
+
+            #实际从网页读取
+            web_data = scraper.get(t).content
+            sourcecode = str(web_data, encoding='utf-8')
+            doc = pq(sourcecode)
+
             addonobject = self.getaddon(doc)
-            addonlist.append(addonobject)
-        print(addonlist)
+            if self.checkNeedUpdate(addonobject):
+                self.download_list.append(addonobject)
+            else:
+                pass
+        #print(self.download_list)
+    
+    def downloadinterface(self):
+        log('===========start downloading============')
 
-        jaddon = json.dumps(addonlist)
-        print(jaddon)
+        for a in self.download_list:
+            log('downloading :' + a['name'])
+            #downloadfile
+            #todo download
+            filename = 'temp_download/' + a['name'] + '.zip'
+            r = scraper.get(a['downloadurl'])
+            with open(filename, "wb") as code:
+               code.write(r.content)
 
-        naddon = json.loads(jaddon)
-        for i in naddon:
-            if i['id']=='2057':
-                print(i['name'])
-        # del(naddon['id']='1')
-        print(naddon)
+            un_zip(filename, wc.wow_path)
+            log(a['name'] + ' unziped completed!!')
+
+            isnewaddon = True
+            for s in self.saved_list:
+                if s['id'] == a['id']:
+                    s['version'] = a['version']
+                    isnewaddon  = False
+                    break
+                else:
+                    pass
+            if isnewaddon:
+                newaddon = dict()
+                newaddon['id'] = a['id']
+                newaddon['name'] = a['name']
+                newaddon['version'] = a['version']
+                self.saved_list.append(newaddon)
+        
+        log('===========downloading complete============')
+        # print(self.saved_list)
+
+        #转为json方便存储
+        jsonsavedata = json.dumps(self.saved_list)
+        # print(jsonsavedata)
+
+        #存储最新的插件数据
+        with open('savedInfo.dat', 'wb') as f:
+            f.write(jsonsavedata.encode())
+
 
 
 def un_zip(file_name, pathname):  
     """unzip zip file"""  
     zip_file = zipfile.ZipFile(file_name)
     
-    log('check '+ pathname)
+    #log('check '+ pathname)
     if os.path.exists(pathname):
-        log(pathname + '-- exsited!')
+        #log(pathname + '-- exsited!')
         pass  
     else:
-        log('create -- ' + pathname)
+        #log('create -- ' + pathname)
         os.mkdir(pathname)
     
     for names in zip_file.namelist():
@@ -171,13 +224,6 @@ def format_size(bytes):
 
 
 
-
-
-
-def downloadfile():
-    pass
-
-
 if __name__ == '__main__':
     path = 'temp_download'
     isExists=os.path.exists(path)
@@ -192,6 +238,9 @@ if __name__ == '__main__':
     wc.loadconfig()
     wc.loadsaveddata()
     wc.preparedownloadinterface()
+    wc.downloadinterface()
+
+    log('===========complete============')
 
     # scraper = cfscrape.create_scraper() 
     # for fullurl in addon_list:
