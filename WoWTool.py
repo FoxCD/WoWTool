@@ -71,7 +71,7 @@ class WoWConfig:
         if wowversioncount == 2:
             originurl = doc('.button.button--icon-only.button--sidebar').eq(1).attr('href')
         else:
-            wowversionstring = doc('.e-sidebar-subheader.overflow-tip.mb-1').children('a').eq(0).text().trim()
+            wowversionstring = doc('.e-sidebar-subheader.overflow-tip.mb-1').children('a').eq(0).text().strip()
             if wowversionstring == 'WoW Classic':
                 originurl = doc('.button.button--icon-only.button--sidebar').eq(0).attr('href')
         
