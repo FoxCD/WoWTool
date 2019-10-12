@@ -241,47 +241,4 @@ if __name__ == '__main__':
     wc.downloadinterface()
 
     log('===========complete============')
-
-    # scraper = cfscrape.create_scraper() 
-    # for fullurl in addon_list:
-    #     log(fullurl)
-    #     web_data = scraper.get(fullurl).content
-    #     #print(web_data)
-    #     source = str(web_data, encoding='utf-8')
-    #     #print(web_data)
-    #     with open('demo.html','wb') as demofile:
-    #         demofile.write(web_data)
-    # #         log('file create')
-    # doc = pq(filename='demo.html')
-    # # print(doc)
-    # id = doc('.overflow-tip.truncate').eq(0).attr('data-id')
-    # log(id)
-
-    # name = doc('.font-bold.text-lg.break-all').text()
-    # log(name)
-
-    # ex_url = 'https://www.curseforge.com'
-    # originurl = ''
-    # wowversioncount = len(doc('.e-sidebar-subheader.overflow-tip.mb-1'))
-    # if wowversioncount == 2:
-    #     originurl = doc('.button.button--icon-only.button--sidebar').eq(1).attr('href')
-    # else:
-    #     wowversionstring = doc('.e-sidebar-subheader.overflow-tip.mb-1').children('a').eq(0).text().trim()
-    #     if wowversionstring == 'WoW Classic':
-    #         originurl = doc('.button.button--icon-only.button--sidebar').eq(0).attr('href')
     
-    # version = originurl[originurl.rindex('/') + 1:]
-    # log(version)
-
-    # url = ex_url + originurl + "/file";	
-    # log(url)
-
-    # filename = name + '.zip'
-    # print('')
-    # print('downloading: ' + filename)
-    # #r = scraper.get(url)
-    # #with open(filename, "wb") as code:
-    # #    code.write(r.content)
-    # print('download completed!')
-    # un_zip(filename, wc.wow_path)
-    # log('unzip completed!!')
