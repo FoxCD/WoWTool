@@ -1,4 +1,3 @@
-#temp_download
-/Applications/World of Warcraft/_classic_/Interface/AddOns
+G:\World of Warcraft\_classic_\Interface\AddOns
 https://www.curseforge.com/wow/addons/Bagnon
 https://www.curseforge.com/wow/addons/omni-cc
