@@ -12,9 +12,9 @@
 
 4.打开命令行工具，或WIN+R然后输入CMD
 
-5.输入 python install cfscrape 并回车执行
+5.输入 pip install cfscrape 并回车执行
 
-6.输入 python install pyquery 并回车执行
+6.输入 pip install pyquery 并回车执行
 
 7.进入到本工具的解压目录，双击“运行.bat” 运行
 
