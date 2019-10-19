@@ -12,7 +12,7 @@ from datetime import datetime
 
 wow_path = ''
 targetInterface_list = list()
-scraper = cfscrape.create_scraper() 
+#scraper = cfscrape.create_scraper() 
 
 def log(res):
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S') +': ' + res)
@@ -105,6 +105,7 @@ class WoWConfig:
 
     def preparedownloadinterface(self):
         self.download_list = list()
+        scrapertemp = cfscrape.create_scraper() 
         for t in self.target_list:
             filename = t[t.rindex('/')+1:]
             log('check interface: ' + filename)
@@ -116,7 +117,7 @@ class WoWConfig:
             #doc = pq(filename=filename+'.html')
 
             #实际从网页读取
-            web_data = scraper.get(t).content
+            web_data = scrapertemp.get(t).content
             sourcecode = str(web_data, encoding='utf-8')
             doc = pq(sourcecode)
 
@@ -129,13 +130,13 @@ class WoWConfig:
     
     def downloadinterface(self):
         log('===========start downloading============')
-
+        scrapertemp = cfscrape.create_scraper() 
         for a in self.download_list:
             log('downloading :' + a['name'])
             #downloadfile
             #todo download
             filename = 'temp_download/' + a['name'] + '.zip'
-            r = scraper.get(a['downloadurl'])
+            r = scrapertemp.get(a['downloadurl'])
             with open(filename, "wb") as code:
                code.write(r.content)
 
@@ -225,6 +226,7 @@ def format_size(bytes):
 
 
 if __name__ == '__main__':
+    log('===========start============')
     path = 'temp_download'
     isExists=os.path.exists(path)
 

@@ -1,1 +1,2 @@
 python wowtool.py
+pause
