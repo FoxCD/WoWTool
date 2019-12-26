@@ -124,11 +124,11 @@ class WoWConfig:
     
     def checkNeedUpdate(self, addonobject):
         res = True
-        log(json.dumps(addonobject))
+        #log(json.dumps(addonobject))
         for a in self.saved_list:
             #log(str(a))
             if int(a['id']) == int(addonobject['id']) and int(a['version']) == int(addonobject['version']):
-                log(json.dumps(a))
+                #log(json.dumps(a))
                 res = False
                 break
             else:
@@ -144,12 +144,12 @@ class WoWConfig:
         self.download_list = list()
 
         #加载所有插件
-        demofile = open('d:/1.txt','r',encoding='utf-8')
+        demofile = open('addon.dat','r',encoding='utf-8')
         addon_all = json.load(demofile)
         demofile.close()
         log('load addon completed!')
 
-            # with open('d:/1.txt','r',encoding='utf-8') as demofile:
+            # with open('addon.dat','r',encoding='utf-8') as demofile:
             #     # while True:
             #         # lines = demofile.read() # 整行读取数据
             #         # if not lines:
@@ -314,11 +314,19 @@ def format_size(bytes):
 if __name__ == '__main__':
     log('===========start============')
 
-    # t='https://addons-ecs.forgesvc.net/api/v2/addon/search?categoryId=0&gameId=1&gameVersionFlavor=wow_classic'
-    # scraper = cfscrape.create_scraper() 
-    # web_data = scraper.get(t).content
-    # with open('d:/1.txt','wb') as demofile:
-    #     demofile.write(web_data)
+    command = input("是否更新现有插件信息（更新较慢，不要经常更新，可能会被封）：【1】更新；【0】不更新")
+    command = int(command)
+
+    if command == 1:
+        log('===========update new addon info============')
+        t='https://addons-ecs.forgesvc.net/api/v2/addon/search?categoryId=0&gameId=1&gameVersionFlavor=wow_classic'        
+        scraper = cfscrape.create_scraper() 
+        web_data = scraper.get(t).content
+        with open('addon.dat','wb') as demofile:
+            demofile.write(web_data)
+        log('!!!!!!!!!!!!!!!update new addon info end!!!!!!!!!!!!!!!')
+    else:
+        pass
     
     path = 'temp_download'
     isExists=os.path.exists(path)
