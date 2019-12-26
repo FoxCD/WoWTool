@@ -314,9 +314,15 @@ def format_size(bytes):
 if __name__ == '__main__':
     log('===========start============')
 
-    command = input("是否更新现有插件信息（更新较慢，不要经常更新，可能会被封）：【1】更新；【0】不更新")
-    command = int(command)
+    command = 0
+    if os.path.exists('addon.dat'):
+        commandstr = input("是否更新现有插件信息（更新较慢，不要经常更新，可能会被封）：【1】更新；【0】不更新")
+        command = int(commandstr)
+    else:
+        command = 1
+        pass
 
+    
     if command == 1:
         log('===========update new addon info============')
         t='https://addons-ecs.forgesvc.net/api/v2/addon/search?categoryId=0&gameId=1&gameVersionFlavor=wow_classic'        
