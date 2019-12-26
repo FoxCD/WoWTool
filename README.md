@@ -2,7 +2,8 @@
 魔兽世界怀旧版插件更新器
 
 安装步骤：
-1.下载并安装python，地址：https://www.python.org/getit/ 安装最新的3.7.4版本即可
+
+1.下载并安装python，地址：https://www.python.org/getit/ 安装最新的版本即可（我只测试了3.7.4）
 
 2.下载本项目，点击下载 "Clone or download"->"Download Zip" ，经典怀旧版修改项目中的“经典版请配置这里.txt”文件
 
