@@ -86,12 +86,49 @@ class WoWConfig:
         addon['version'] = version
         addon['downloadurl'] = downloadurl 
         return addon
+
+    def getaddonV2(self, doc):
+        id = doc['id']
+        #log(id)
+
+        name = doc['name']
+        #log(name)
+
+        version= 0
+        downloadurl=''
+        # for lastedversion in doc['gameVersionLatestFiles']:
+        #     log(str(lastedversion['projectFileId']))
+        #     log(str(lastedversion['gameVersionFlavor']))
+
+        #     if lastedversion['gameVersionFlavor'] == 'wow_classic' and int(lastedversion['projectFileId']) > projectFileId:
+        #         projectFileId = lastedversion['projectFileId']
+        #         pass
+        #     pass
+
+        for lastedfile in doc['latestFiles']:
+            if not str(lastedfile['fileName']).find('nolib') >= 0 and lastedfile['gameVersionFlavor'] == 'wow_classic' and int(lastedfile['id']) > version:
+                version = int(lastedfile['id'])
+                downloadurl = lastedfile['downloadUrl']
+                #break
+            pass
+        pass
+    
+        addon = dict()
+        addon['id'] = id
+        addon['name'] = name
+        addon['version'] = version
+        addon['downloadurl'] = downloadurl 
+        
+        #log(json.dumps(addon))
+        return addon
     
     def checkNeedUpdate(self, addonobject):
         res = True
+        #log(json.dumps(addonobject))
         for a in self.saved_list:
             #log(str(a))
-            if a['id'] == addonobject['id'] and a['version'] == addonobject['version']:
+            if int(a['id']) == int(addonobject['id']) and int(a['version']) == int(addonobject['version']):
+                #log(json.dumps(a))
                 res = False
                 break
             else:
@@ -102,6 +139,54 @@ class WoWConfig:
         else:
             log(addonobject['name'] + ' not need to update')
         return res
+
+    def preparedownloadinterfaceV2(self):
+        self.download_list = list()
+
+        #加载所有插件
+        demofile = open('addon.dat','r',encoding='utf-8')
+        addon_all = json.load(demofile)
+        demofile.close()
+        log('load addon completed!')
+
+            # with open('addon.dat','r',encoding='utf-8') as demofile:
+            #     # while True:
+            #         # lines = demofile.read() # 整行读取数据
+            #         # if not lines:
+            #         #     break
+            #         #     pass
+            #         #p_tmp, E_tmp = [float(i) for i in lines.split()] # 将整行数据分割处理，如果分割符是空格，括号里就不用传入参数，如果是逗号， 则传入‘，'字符。
+            #         #pos.append(p_tmp)  # 添加新读取的数据
+            #         #Efield.append(E_tmp)
+            #         #log(lines)
+            #         jj = json.load(demofile)
+            #         pass
+            #     #pos = np.array(pos) # 将数据从list类型转换为array类型。
+            #     #Efield = np.array(Efield)
+            # pass
+        #print(jj[0]['name'])
+
+
+        #scrapertemp = cfscrape.create_scraper() 
+        for t in self.target_list:
+            filename = t[t.rindex('/')+1:]
+            log('check interface: ' + filename)
+
+            for a in addon_all:
+                #log('read :' + a['name'])
+
+                if str(a['websiteUrl']).lower() == t.lower():
+                    addonobject = self.getaddonV2(a)
+                    if self.checkNeedUpdate(addonobject):
+                        self.download_list.append(addonobject)
+                        pass                    
+                    break
+                pass
+            pass
+
+        pass
+
+        #print(self.download_list)
 
     def preparedownloadinterface(self):
         self.download_list = list()
@@ -135,7 +220,8 @@ class WoWConfig:
             log('downloading :' + a['name'])
             #downloadfile
             #todo download
-            filename = 'temp_download/' + a['name'] + '.zip'
+            aname = str(a['downloadurl'])[str(a['downloadurl']).rindex('/')+1:]
+            filename = 'temp_download/' + aname
             r = scrapertemp.get(a['downloadurl'])
             with open(filename, "wb") as code:
                code.write(r.content)
@@ -227,19 +313,40 @@ def format_size(bytes):
 
 if __name__ == '__main__':
     log('===========start============')
+
+    command = 0
+    if os.path.exists('addon.dat'):
+        commandstr = input("是否更新现有插件信息（更新较慢，不要经常更新，可能会被封）：【1】更新；【0】不更新")
+        command = int(commandstr)
+    else:
+        command = 1
+        pass
+
+    
+    if command == 1:
+        log('===========update new addon info============')
+        t='https://addons-ecs.forgesvc.net/api/v2/addon/search?categoryId=0&gameId=1&gameVersionFlavor=wow_classic'        
+        scraper = cfscrape.create_scraper() 
+        web_data = scraper.get(t).content
+        with open('addon.dat','wb') as demofile:
+            demofile.write(web_data)
+        log('!!!!!!!!!!!!!!!update new addon info end!!!!!!!!!!!!!!!')
+    else:
+        pass
+    
     path = 'temp_download'
     isExists=os.path.exists(path)
 
     if not isExists:
-        os.mkdir(path)
-        log('temp download path created')
+       os.mkdir(path)
+       log('temp download path created')
     else:
-        log('temp download path exist')
+       log('temp download path exist')
     
     wc = WoWConfig()
     wc.loadconfig()
     wc.loadsaveddata()
-    wc.preparedownloadinterface()
+    wc.preparedownloadinterfaceV2()
     wc.downloadinterface()
 
     log('===========complete============')
