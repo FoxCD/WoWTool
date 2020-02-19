@@ -106,7 +106,9 @@ class WoWConfig:
         if res:
             log(addonobject['name'] + ' need update')
         else:
-            log(addonobject['name'] + ' not need to update')
+            #log(addonobject['name'] + ' not need to update')
+            pass
+
         return res
 
     def preparedownloadinterfaceV2(self):
@@ -120,7 +122,7 @@ class WoWConfig:
  
         for t in self.target_list:
             filename = t[t.rindex('/')+1:]
-            log('check interface: ' + filename)
+            #log('check interface: ' + filename)
 
             founded = 0
             for a in addon_all:
@@ -143,7 +145,19 @@ class WoWConfig:
         #print(self.download_list)
     
     def downloadinterface(self):
-        log('===============start downloading===============')
+        log('===============update start===============')
+        log('wow addons path is :' + wc.wow_path)
+            
+        #log('check wow addons path'+ pathname)
+        if os.path.exists(wc.wow_path):
+            log(wc.wow_path + ' -- exsited!')
+            pass  
+        else:
+            log(wc.wow_path + ' -- IS NOT exsit, CREAT PATH')
+            os.makedirs(wc.wow_path)
+            log(wc.wow_path + ' -- CREAT success!')
+            pass
+
         for a in self.download_list:
             log('downloading :' + a['name'])
             #downloadfile
@@ -155,7 +169,7 @@ class WoWConfig:
                code.write(r.content)
 
             un_zip(filename, wc.wow_path)
-            log(a['name'] + ' unziped completed!!')
+            log(a['name'] + ' update complete!!')
 
             isnewaddon = True
             for s in self.saved_list:
@@ -176,7 +190,7 @@ class WoWConfig:
                 pass
             pass
                 
-        log('===============downloading complete===============')
+        log('===============update complete===============')
         # print(self.saved_list)
 
         #转为json方便存储
@@ -193,15 +207,6 @@ def un_zip(file_name, pathname):
     """unzip zip file"""  
     zip_file = zipfile.ZipFile(file_name)
     
-    #log('check '+ pathname)
-    if os.path.exists(pathname):
-        #log(pathname + '-- exsited!')
-        pass  
-    else:
-        #log('create -- ' + pathname)
-        os.mkdir(pathname)
-        pass
-    
     for names in zip_file.namelist():
         zip_file.extract(names, pathname)  #加入到某个文件夹中 zip_file.extract(names,file_name.split(".")[0])
         pass
@@ -209,7 +214,7 @@ def un_zip(file_name, pathname):
 
 
 if __name__ == '__main__':
-    log('===============start V1.1.1===============')
+    log('===============start V1.1.2===============')
 
     command = 0
     if os.path.exists('addon.dat'):
@@ -222,7 +227,7 @@ if __name__ == '__main__':
 
     dbupdated = 1
     if command == 1:
-        log('===============update addon db===============')
+        log('===============update addon database===============')
         try:
             headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36'}
             url ='https://addons-ecs.forgesvc.net/api/v2/addon/search?categoryId=0&gameId=1&gameVersionFlavor=wow_classic'        
@@ -230,11 +235,11 @@ if __name__ == '__main__':
             #log(str(r.status_code))
             with open('addon.dat','wb') as demofile:
                 demofile.write(r.content)
-            log('===============update addon db succeed===============')
+            log('===============update addon database succeed===============')
             pass
         except:
             dbupdated = 0
-            log('!!!!!!!!!!!!!!!update addon db failed!!!!!!!!!!!!!!!')
+            log('!!!!!!!!!!!!!!!update addon database failed!!!!!!!!!!!!!!!')
             pass
     else:
         pass
@@ -257,7 +262,7 @@ if __name__ == '__main__':
 
         #output err info
         for t in wc.err_list:
-            log(t + ' is NOT FOUNDED!!!!!!!!!')
+            log(t + ' 【插件地址没有找到】')
             pass
         
         log('===============complete===============')
