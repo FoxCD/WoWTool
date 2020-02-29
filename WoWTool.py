@@ -32,7 +32,9 @@ class WoWConfig:
                 lines = f.readlines()
             for l in lines:
                 if l.startswith('#'):
-                    pass
+                    continue                
+                elif l.strip() == '':
+                    continue
                 elif l.startswith('http'):
                     self.target_list.append(l.strip())
                 else:
@@ -214,7 +216,7 @@ def un_zip(file_name, pathname):
 
 
 if __name__ == '__main__':
-    log('===============start V1.1.2===============')
+    log('===============start V1.1.3===============')
 
     command = 0
     if os.path.exists('addon.dat'):
